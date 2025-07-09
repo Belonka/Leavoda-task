@@ -8,16 +8,33 @@ import {
     Box,
     Paper,
   } from '@mui/material';
+  import { useDispatch } from 'react-redux';
+  import { login } from '../redux/slices/authSlice';
+  import { useNavigate } from 'react-router-dom';
 
 
-
-export default function LoginPage({onSubmit}) {
+export default function LoginPage() {
     const [username, setUsername] = useState('');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        if (username.trim()) {
-          onSubmit(username.trim());
+        if (!username.trim()) return;
+
+        try {
+            const res = await fetch(`https://dummyjson.com/users/filter?key=username&value=${username}`)
+            const data = await res.json()
+            const user = data.users?.[0]
+
+            if(user) {
+                dispatch(login(user.id));
+                navigate('/dashboard')
+            }else{
+                alert('User not found')
+            }
+        }catch(err) {
+            console.log(err)
         }
       };
   return (
